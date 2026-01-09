@@ -1,55 +1,46 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+- Version change: 1.0.0 (Initial)
+- Modified Principles: All placeholders replaced with Hackathon Phase-2 principles
+- Added Sections: Security Guardrails, Technology Stack
+- Templates requiring updates: All SDD templates aligned with multi-user JWT principles
+- Follow-up TODOs: None
+-->
+
+# Todo Full-Stack Web Application Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Spec-Driven Development (NON-NEGOTIABLE)
+All development MUST follow the sequence: Constitution → Specification → Plan → Tasks → Implementation. No code may be written without an approved specification and implementation plan. This ensures deterministic, reproducible, and verifiable development.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Security-First & User Isolation
+The system MUST guarantee strict user isolation. Unauthorized requests (missing or invalid JWT) MUST return HTTP 401. All database queries and mutations MUST be filtered by the authenticated user's ID. Users must never be able to access or modify data belonging to another user.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Stateless API Design
+Backend APIs MUST be RESTful and stateless. Authentication MUST be handled via JWT tokens verifying a shared secret. No server-side sessions or shared state (outside the database) are permitted, ensuring the backend can scale and remain predictable.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Agentic Implementation Only
+All implementation tasks MUST be performed by specialized agents (auth-agent, neon-db-architect, nextjs-app-router-expert, etc.) via Claude Code. Manual coding is strictly prohibited to maintain the integrity of the SDD process.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Testable & Atomic Tasks
+Implementation plans MUST be broken into atomic, testable tasks. Each task MUST have associated acceptance criteria that verify functionality and security constraints (e.g., unauthorized access rejection).
 
-### [PRINCIPLE_6_NAME]
+### VI. Production-Grade Minimalism
+Despite the basic feature scope, the architecture MUST follow production-grade standards: explicit error handling, sensitive data protection (no secrets in code), responsive UI, and persistent storage using Neon PostgreSQL.
 
+## Security Guardrails
+- **JWT Verification**: Every protected backend request must verify the JWT signature and expiration.
+- **Environment Safety**: Shared secrets and database credentials must only be accessed via environment variables.
+- **Input Validation**: All user input must be validated at the system boundaries (Frontend and Backend).
 
-[PRINCIPLE__DESCRIPTION]
-
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
-
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
-
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Technology Stack
+- **Frontend**: Next.js 16+ (App Router)
+- **Backend**: Python FastAPI with SQLModel (ORM)
+- **Authentication**: Better Auth with JWT plugin
+- **Database**: Neon Serverless PostgreSQL
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+This constitution is the supreme authority for the project. Any deviations require a formal amendment and a version bump. All PRs and automated reviews MUST verify compliance with these principles.
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
-
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-01-09 | **Last Amended**: 2026-01-09

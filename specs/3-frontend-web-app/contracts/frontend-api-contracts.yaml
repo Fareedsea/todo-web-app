@@ -1,0 +1,364 @@
+# Frontend API Contracts
+# Defines the frontend's interaction patterns with backend APIs
+
+openapi: 3.0.0
+info:
+  title: Frontend API Interaction Contracts
+  version: 1.0.0
+  description: Contract for how the frontend interacts with backend APIs
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development server
+
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      description: Create a new user account and return JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email address
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  description: User's password
+      responses:
+        '200':
+          description: Registration successful, returns JWT token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    description: JWT access token
+                  token_type:
+                    type: string
+                    default: bearer
+        '400':
+          description: Invalid input data
+        '409':
+          description: User already exists
+
+  /auth/login:
+    post:
+      summary: Login user
+      description: Authenticate user and return JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Login successful, returns JWT token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    description: JWT access token
+                  token_type:
+                    type: string
+                    default: bearer
+        '400':
+          description: Invalid credentials
+        '401':
+          description: Unauthorized
+
+  /auth/logout:
+    post:
+      summary: Logout user
+      description: Invalidate the current session
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+        '401':
+          description: Unauthorized
+
+  /todos:
+    get:
+      summary: Get user's todos
+      description: Retrieve all todos for the authenticated user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved todos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Todo'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+    post:
+      summary: Create a new todo
+      description: Create a new todo item for the authenticated user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoCreate'
+      responses:
+        '201':
+          description: Todo created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        '400':
+          description: Invalid input data
+        '401':
+          description: Unauthorized
+
+  /todos/{id}:
+    get:
+      summary: Get a specific todo
+      description: Retrieve a specific todo by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successfully retrieved todo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Todo not found
+
+    put:
+      summary: Update a todo
+      description: Update an existing todo item
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoUpdate'
+      responses:
+        '200':
+          description: Todo updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        '400':
+          description: Invalid input data
+        '401':
+          description: Unauthorized
+        '404':
+          description: Todo not found
+
+    patch:
+      summary: Partially update a todo
+      description: Partially update an existing todo item
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoUpdate'
+      responses:
+        '200':
+          description: Todo updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        '400':
+          description: Invalid input data
+        '401':
+          description: Unauthorized
+        '404':
+          description: Todo not found
+
+    delete:
+      summary: Delete a todo
+      description: Delete an existing todo item
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Todo deleted successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Todo not found
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Todo:
+      type: object
+      required:
+        - id
+        - title
+        - user_id
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the todo
+        title:
+          type: string
+          maxLength: 255
+          minLength: 1
+          description: Title of the todo item
+        description:
+          type: string
+          nullable: true
+          maxLength: 1000
+          description: Optional description of the todo item
+        is_completed:
+          type: boolean
+          default: false
+          description: Whether the todo item is completed
+        priority:
+          type: string
+          enum: [low, medium, high]
+          default: medium
+          description: Priority level of the todo
+        due_date:
+          type: string
+          format: date-time
+          nullable: true
+          description: Optional due date for the todo
+        user_id:
+          type: string
+          format: uuid
+          description: ID of the user who owns this todo
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the todo was created
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the todo was last updated
+
+    TodoCreate:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          maxLength: 255
+          minLength: 1
+          description: Title of the todo item
+        description:
+          type: string
+          nullable: true
+          maxLength: 1000
+          description: Optional description of the todo item
+        is_completed:
+          type: boolean
+          default: false
+          description: Whether the todo item is completed (default: false)
+        priority:
+          type: string
+          enum: [low, medium, high]
+          default: medium
+          description: Priority level of the todo
+
+    TodoUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          description: Updated title of the todo item
+        description:
+          type: string
+          nullable: true
+          maxLength: 1000
+          description: Updated description of the todo item
+        is_completed:
+          type: boolean
+          nullable: true
+          description: Updated completion status of the todo item
+        priority:
+          type: string
+          enum: [low, medium, high]
+          nullable: true
+          description: Updated priority level of the todo
